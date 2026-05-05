@@ -1,9 +1,8 @@
 import { io } from "socket.io-client";
 
-const socket = io("http://localhost:5001");
+const socket = io(process.env.REACT_APP_API_URL.replace("/api", ""), {
 
-socket.on("connect", () => {
-  console.log("✅ Connected to socket:", socket.id);
+  transports: ["websocket"],
+
 });
-
 export default socket;
