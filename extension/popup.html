@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 64 64" role="img">
+          <path d="M32 6 52 14v15c0 14.9-8.2 25.6-20 30-11.8-4.4-20-15.1-20-30V14L32 6Z" />
+          <path d="M32 16 43 20.5V30c0 8.2-4.3 14.3-11 17.3C25.3 44.3 21 38.2 21 30v-9.5L32 16Z" />
+        </svg>
+      </div>
+      <div>
+        <h1>CyberShield<span>AI</span></h1>
+        <p>Advanced browser protection</p>
+      </div>
+    </header>
+
+    <section class="status-card" id="statusCard">
+      <div class="status-top">
+        <div>
+          <div class="eyebrow">Current page</div>
+          <div class="risk-row">
+            <span id="riskLabel">Scanning...</span>
+          </div>
+        </div>
+        <button id="rescanBtn" class="icon-btn" title="Rescan active page">↻</button>
+      </div>
+      <p id="scanSummary">Checking this tab for phishing and malware signals.</p>
+      <p id="scanSource" class="hint">Source: starting scan</p>
+      <button id="explainBtn" class="primary">AI Explanation</button>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Protection Stack</div>
+      </div>
+      <div class="toggle-grid">
+        <label><input type="checkbox" data-setting="autoScan"><span>URL auto-scanning</span></label>
+        <label><input type="checkbox" data-setting="popupAlerts"><span>Popup alerts</span></label>
+        <label><input type="checkbox" data-setting="gmailScan"><span>Gmail scanning</span></label>
+        <label><input type="checkbox" data-setting="safeSearch"><span>Safe search badges</span></label>
+        <label><input type="checkbox" data-setting="pageBlocking"><span>Page blocking</span></label>
+        <label><input type="checkbox" data-setting="downloadScan"><span>Download scanning</span></label>
+      </div>
+    </section>
+
+    <section class="panel compact">
+      <div class="panel-title">QR Scanner</div>
+      <input id="qrInput" type="file" accept="image/*">
+      <p id="qrResult" class="result-text">Choose a QR image to scan its link.</p>
+    </section>
+
+    <section class="panel compact">
+      <div class="panel-title">File Analysis</div>
+      <input id="fileInput" type="file">
+      <p id="fileResult" class="result-text">Choose a file to analyze metadata and hash.</p>
+    </section>
+
+    <section class="panel compact">
+      <div class="panel-title">Password Breach Checker</div>
+      <input id="passwordInput" type="password" placeholder="Enter password to check privately">
+      <button id="breachBtn" class="secondary">Check Password</button>
+      <p id="breachResult" class="result-text">Uses k-anonymity. Your full password is not uploaded.</p>
+    </section>
+  </main>
+
+  <script src="popup.js"></script>
+</body>
+</html>

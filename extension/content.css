@@ -1,0 +1,117 @@
+.cybershield-search-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 8px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  font: 700 11px/1 Arial, sans-serif;
+  vertical-align: middle;
+  border: 1px solid rgba(100, 116, 139, 0.3);
+  color: #0f172a;
+  background: #e2e8f0;
+}
+
+.cybershield-search-badge[data-risk="LOW"] {
+  color: #14532d;
+  background: #dcfce7;
+  border-color: #86efac;
+}
+
+.cybershield-search-badge[data-risk="MEDIUM"] {
+  color: #713f12;
+  background: #fef3c7;
+  border-color: #fbbf24;
+}
+
+.cybershield-search-badge[data-risk="HIGH"] {
+  color: #7f1d1d;
+  background: #fee2e2;
+  border-color: #fca5a5;
+}
+
+.cybershield-gmail-banner {
+  margin: 10px 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font: 13px/1.45 Arial, sans-serif;
+  color: #0f172a;
+  background: #e0f2fe;
+  border: 1px solid #7dd3fc;
+}
+
+.cybershield-gmail-banner[data-risk="MEDIUM"] {
+  background: #fef3c7;
+  border-color: #fbbf24;
+}
+
+.cybershield-gmail-banner[data-risk="HIGH"] {
+  background: #fee2e2;
+  border-color: #fca5a5;
+}
+
+#cybershield-risk-panel {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 2147483647;
+  width: 320px;
+  padding: 16px;
+  border-radius: 14px;
+  color: #fff;
+  background: #0b1728;
+  border: 1px solid rgba(248, 113, 113, 0.55);
+  box-shadow: 0 24px 70px rgba(2, 6, 23, 0.38);
+  font-family: Arial, sans-serif;
+}
+
+#cybershield-risk-panel .cs-panel-title {
+  color: #7dd3fc;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+#cybershield-risk-panel .cs-panel-risk {
+  color: #fca5a5;
+  font-size: 21px;
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+
+#cybershield-risk-panel .cs-panel-body {
+  color: #cbd5e1;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+#cybershield-risk-panel ul {
+  margin: 10px 0 0 18px;
+  padding: 0;
+}
+
+#cybershield-risk-panel .cs-panel-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+#cybershield-risk-panel button {
+  flex: 1;
+  border: 0;
+  border-radius: 9px;
+  padding: 9px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+#cs-explain-btn {
+  color: #fff;
+  background: #0b7cff;
+}
+
+#cs-dismiss-btn {
+  color: #dbeafe;
+  background: rgba(148, 163, 184, 0.18);
+}

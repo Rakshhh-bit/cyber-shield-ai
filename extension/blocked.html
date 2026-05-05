@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="blocked.css">
+</head>
+<body>
+  <main class="block-shell">
+    <div class="mark">!</div>
+    <p class="eyebrow">CyberShield Page Blocking</p>
+    <h1>Dangerous page blocked</h1>
+    <p id="reason" class="reason">CyberShield detected a high-risk page.</p>
+
+    <div class="url-box" id="blockedUrl"></div>
+
+    <div class="actions">
+      <button id="backBtn">Go Back</button>
+      <button id="continueBtn" class="danger">Continue Anyway</button>
+    </div>
+
+    <p class="hint">Do not enter passwords, OTPs, payment details, or download files from this page.</p>
+  </main>
+
+  <script src="blocked.js"></script>
+</body>
+</html>
