@@ -26,7 +26,7 @@ function AdminDashboard() {
 
   return (
     <Layout>
-      <div style={{ animation: 'fadeUp 0.5s ease both' }}>
+      <div className="responsive-page" style={{ animation: 'fadeUp 0.5s ease both' }}>
 
         {/* HEADER */}
         <div style={{ marginBottom: '36px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
@@ -43,12 +43,12 @@ function AdminDashboard() {
           </div>
 
           {/* STATS */}
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+          <div className="responsive-wrap-row" style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
             {[
               { label: 'Users', value: users.length, color: '#00f5ff' },
               { label: 'Scans', value: scans.length, color: '#8b5cf6' },
             ].map(s => (
-              <div key={s.label} style={{
+              <div key={s.label} className="responsive-card" style={{
                 padding: '14px 20px',
                 borderRadius: '12px',
                 background: 'rgba(255,255,255,0.02)',
@@ -62,12 +62,14 @@ function AdminDashboard() {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}
-          className="md:grid-cols-2 grid-cols-1">
+        <div
+          className="responsive-grid responsive-grid-two"
+          style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}
+        >
 
           {/* USERS */}
-          <div style={{ padding: '24px', borderRadius: '20px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+          <div className="responsive-card" style={{ padding: '24px', borderRadius: '20px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <div className="responsive-wrap-row" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
               <Users size={16} color="rgba(0,245,255,0.7)" />
               <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'rgba(255,255,255,0.8)' }}>User Management</span>
               <div style={{
@@ -86,7 +88,7 @@ function AdminDashboard() {
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '400px', overflowY: 'auto' }}>
                 {users.map((u) => (
-                  <div key={u._id} style={{
+                  <div key={u._id} className="mobile-stack-row" style={{
                     display: 'flex', alignItems: 'center', gap: '12px',
                     padding: '12px 14px',
                     borderRadius: '12px',
@@ -138,8 +140,8 @@ function AdminDashboard() {
           </div>
 
           {/* SCANS */}
-          <div style={{ padding: '24px', borderRadius: '20px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+          <div className="responsive-card" style={{ padding: '24px', borderRadius: '20px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <div className="responsive-wrap-row" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
               <Activity size={16} color="rgba(139,92,246,0.7)" />
               <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'rgba(255,255,255,0.8)' }}>Threat Logs</span>
               <div style={{
@@ -158,7 +160,7 @@ function AdminDashboard() {
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '400px', overflowY: 'auto' }}>
                 {scans.map((s) => (
-                  <div key={s._id} style={{
+                  <div key={s._id} className="mobile-stack-row" style={{
                     display: 'flex', alignItems: 'center', gap: '12px',
                     padding: '12px 14px',
                     borderRadius: '12px',
@@ -224,7 +226,7 @@ function AdminDashboard() {
         </div>
 
         {/* FOOTER WARNING */}
-        <div style={{
+        <div className="responsive-card mobile-stack-row" style={{
           marginTop: '24px',
           padding: '16px 20px',
           borderRadius: '12px',

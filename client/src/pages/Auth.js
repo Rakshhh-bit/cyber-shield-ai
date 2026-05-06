@@ -70,7 +70,7 @@ function Auth() {
   };
 
   return (
-    <div style={{
+    <div className="auth-page" style={{
       minHeight: '100vh',
       display: 'flex',
       alignItems: 'center',
@@ -90,7 +90,7 @@ function Auth() {
         pointerEvents: 'none',
       }} />
 
-      <div style={{
+      <div className="responsive-grid auth-card" style={{
         width: '100%',
         maxWidth: '920px',
         display: 'grid',
@@ -100,11 +100,10 @@ function Auth() {
         border: '1px solid rgba(255,255,255,0.07)',
         boxShadow: '0 40px 120px rgba(0,0,0,0.6)',
         animation: 'fadeUp 0.5s ease both',
-      }}
-        className="md:grid-cols-2 grid-cols-1">
+      }}>
 
         {/* LEFT PANEL */}
-        <div style={{
+        <div className="auth-side-panel" style={{
           background: 'linear-gradient(145deg, rgba(0,128,255,0.08) 0%, rgba(139,92,246,0.08) 100%)',
           padding: '48px 40px',
           display: 'flex',
@@ -113,8 +112,7 @@ function Auth() {
           borderRight: '1px solid rgba(255,255,255,0.06)',
           position: 'relative',
           overflow: 'hidden',
-        }}
-          className="hidden md:flex">
+        }}>
 
           {/* BG PATTERN */}
           <div style={{
@@ -178,7 +176,7 @@ function Auth() {
         </div>
 
         {/* RIGHT PANEL - FORM */}
-        <div style={{
+        <div className="auth-form-panel" style={{
           background: 'rgba(255,255,255,0.02)',
           padding: '48px 40px',
           display: 'flex',
@@ -216,7 +214,7 @@ function Auth() {
           ) : (
             <>
               {mode === 'register' && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+                <div className="responsive-grid responsive-grid-two" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
                   <InputField icon={User} placeholder="First name" onChange={setFirstName} />
                   <InputField icon={User} placeholder="Last name" onChange={setLastName} />
                 </div>

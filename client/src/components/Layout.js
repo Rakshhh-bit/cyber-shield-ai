@@ -28,7 +28,7 @@ function Layout({ children }) {
   ];
 
   return (
-    <div className="flex min-h-screen text-white relative">
+    <div className="app-shell flex min-h-screen text-white relative">
 
       {/* SCAN LINE EFFECT */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
@@ -70,7 +70,7 @@ function Layout({ children }) {
       <aside
         style={{
           width: '240px',
-          transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           background: 'rgba(2, 4, 8, 0.95)',
           borderRight: '1px solid rgba(255,255,255,0.06)',
           backdropFilter: 'blur(40px)',
@@ -80,9 +80,11 @@ function Layout({ children }) {
           position: 'fixed',
           height: '100vh',
           zIndex: 40,
-          left: mobileOpen ? '0' : undefined,
+          left: 0,
+          top: 0,
+          transform: mobileOpen ? 'translateX(0)' : 'translateX(-100%)',
         }}
-        className={`${!mobileOpen ? '-left-full md:left-0 md:relative' : ''}`}
+        className="app-sidebar"
       >
 
         {/* LOGO AREA */}
@@ -220,8 +222,17 @@ function Layout({ children }) {
       )}
 
       {/* CONTENT */}
-      <div style={{ flex: 1, marginLeft: '240px', transition: 'margin 0.3s cubic-bezier(0.4,0,0.2,1)', padding: '32px', position: 'relative', zIndex: 1 }}
-        className="md:block">
+      <div
+        style={{
+          flex: 1,
+          marginLeft: '240px',
+          transition: 'margin 0.3s cubic-bezier(0.4,0,0.2,1), padding 0.3s ease',
+          padding: 'clamp(20px, 4vw, 32px)',
+          position: 'relative',
+          zIndex: 1,
+        }}
+        className="app-content md:block"
+      >
         {children}
       </div>
 

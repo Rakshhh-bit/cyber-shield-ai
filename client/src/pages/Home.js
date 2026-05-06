@@ -63,7 +63,7 @@ function Home() {
 
       <Navbar />
 
-      <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '48px 24px 80px' }}>
+      <main className="home-main responsive-page" style={{ maxWidth: '1200px', margin: '0 auto', padding: '48px 24px 80px' }}>
 
         {/* HERO */}
         <section style={{ textAlign: 'center', marginBottom: '80px', animation: 'fadeUp 0.6s ease forwards' }}>
@@ -116,7 +116,7 @@ function Home() {
           </p>
 
           {/* CTA BUTTONS */}
-          <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '20px' }}>
+          <div className="responsive-actions" style={{ display: 'flex', gap: '14px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '20px' }}>
             {[
               { label: '📧 Scan Email', path: '/email', primary: true },
               { label: '🔗 Scan Link', path: '/link', primary: true },
@@ -166,12 +166,13 @@ function Home() {
             </h2>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
+          <div className="responsive-grid responsive-grid-cards" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
             {FEATURES.map((f, i) => {
               const Icon = f.icon;
               return (
                 <div
                   key={i}
+                  className="responsive-card"
                   style={{
                     padding: '28px',
                     borderRadius: '16px',
@@ -216,7 +217,7 @@ function Home() {
 
         {/* HOW IT WORKS */}
         <section style={{ marginBottom: '72px' }}>
-          <div style={{
+          <div className="responsive-card" style={{
             padding: '28px',
             borderRadius: '20px',
             background: 'rgba(255,255,255,0.02)',

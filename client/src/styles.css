@@ -291,3 +291,247 @@ body::after {
 .animate-delay-1 { animation-delay: 0.1s; }
 .animate-delay-2 { animation-delay: 0.2s; }
 .animate-delay-3 { animation-delay: 0.3s; }
+
+/* ===== RESPONSIVE LAYOUT ===== */
+html,
+body,
+#root {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
+}
+
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
+}
+
+button,
+input,
+textarea,
+select {
+  max-width: 100%;
+}
+
+.app-shell,
+.app-content,
+.responsive-page,
+.responsive-card,
+.mobile-full-width {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.responsive-page {
+  overflow-wrap: anywhere;
+}
+
+.responsive-grid {
+  min-width: 0;
+}
+
+.responsive-card {
+  width: 100%;
+}
+
+.app-sidebar {
+  will-change: transform;
+}
+
+@media (min-width: 768px) {
+  .app-sidebar {
+    transform: translateX(0) !important;
+  }
+}
+
+@media (max-width: 767px) {
+  body::after {
+    width: 420px;
+    height: 420px;
+    top: -140px;
+    left: -180px;
+  }
+
+  .app-shell {
+    display: block !important;
+  }
+
+  .app-sidebar {
+    width: min(82vw, 280px) !important;
+    max-width: calc(100vw - 28px);
+    box-shadow: 24px 0 60px rgba(0, 0, 0, 0.55);
+  }
+
+  .app-content {
+    width: 100% !important;
+    margin-left: 0 !important;
+    padding: 72px clamp(14px, 4vw, 20px) 28px !important;
+  }
+
+  .responsive-page h1 {
+    font-size: clamp(1.45rem, 8vw, 1.8rem) !important;
+    letter-spacing: 0 !important;
+    line-height: 1.15 !important;
+  }
+
+  .responsive-page h2 {
+    font-size: clamp(1.25rem, 6vw, 1.55rem) !important;
+    letter-spacing: 0 !important;
+    line-height: 1.2 !important;
+  }
+
+  .responsive-page h3 {
+    font-size: clamp(0.95rem, 4.6vw, 1.15rem) !important;
+    letter-spacing: 0 !important;
+  }
+
+  .responsive-page p,
+  .responsive-page span,
+  .responsive-page div,
+  .responsive-page button,
+  .responsive-page input,
+  .responsive-page textarea {
+    letter-spacing: 0 !important;
+  }
+
+  .responsive-grid,
+  .responsive-grid-two,
+  .responsive-grid-scan,
+  .responsive-grid-cards,
+  .responsive-grid-stats,
+  .profile-grid,
+  .auth-card {
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100% !important;
+  }
+
+  .responsive-grid-stats,
+  .responsive-grid-cards {
+    gap: 12px !important;
+  }
+
+  .responsive-card,
+  .glass,
+  .glass-elevated,
+  .stat-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 14px !important;
+  }
+
+  .responsive-card[style*="padding"],
+  .glass,
+  .glass-elevated,
+  .stat-card {
+    padding: clamp(16px, 5vw, 20px) !important;
+  }
+
+  .responsive-actions {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100% !important;
+  }
+
+  .responsive-actions > button,
+  .responsive-actions > a {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .responsive-wrap-row {
+    flex-wrap: wrap !important;
+    align-items: stretch !important;
+  }
+
+  .responsive-wrap-row > [style*="margin-left: auto"] {
+    margin-left: 0 !important;
+  }
+
+  .mobile-stack-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+
+  .mobile-stack-row > * {
+    max-width: 100% !important;
+  }
+
+  .mobile-stack-row > button {
+    align-self: flex-end !important;
+  }
+
+  .mobile-stack-row [style*="white-space: nowrap"] {
+    white-space: normal !important;
+  }
+
+  .home-main {
+    padding: 32px clamp(14px, 4vw, 20px) 56px !important;
+  }
+
+  .home-main section {
+    margin-bottom: 48px !important;
+  }
+
+  .auth-page {
+    align-items: stretch !important;
+    padding: 16px !important;
+  }
+
+  .auth-card {
+    max-width: 440px !important;
+    margin: auto !important;
+    border-radius: 18px !important;
+  }
+
+  .auth-side-panel {
+    display: none !important;
+  }
+
+  .auth-form-panel {
+    padding: 28px 20px !important;
+  }
+
+  .profile-page {
+    padding: 24px clamp(14px, 4vw, 20px) !important;
+  }
+
+  .navbar-shell {
+    padding: 14px clamp(12px, 4vw, 18px) 0 !important;
+  }
+
+  .navbar-card {
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+    padding: 12px !important;
+    border-radius: 14px !important;
+  }
+
+  .navbar-brand {
+    min-width: 0 !important;
+  }
+
+  .navbar-actions {
+    width: 100% !important;
+    justify-content: space-between !important;
+  }
+
+  .navbar-actions button {
+    min-height: 40px !important;
+  }
+
+  .toast-stack {
+    left: 12px !important;
+    right: 12px !important;
+    top: 12px !important;
+  }
+
+  .toast-card {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: calc(100vw - 24px) !important;
+  }
+}

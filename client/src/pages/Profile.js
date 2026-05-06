@@ -22,7 +22,7 @@ const Toast = ({ toast, onClose }) => {
   if (!toast) return null;
   const isError = toast.type === 'error';
   return (
-    <div style={{
+    <div className="toast-card" style={{
       position: 'fixed', bottom: 28, right: 28, zIndex: 999,
       padding: '14px 20px', borderRadius: 12, maxWidth: 340,
       background: isError
@@ -159,7 +159,7 @@ const Badge = ({ label }) => (
 );
 
 const SectionCard = ({ title, icon, children }) => (
-  <div style={{
+  <div className="responsive-card" style={{
     borderRadius: 16, background: 'rgba(255,255,255,0.025)',
     border: '1px solid rgba(255,255,255,0.07)',
     overflow: 'hidden',
@@ -209,7 +209,7 @@ const PasswordStrength = ({ password }) => {
           {score > 0 ? labels[score - 1] : ''}
         </span>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 12px' }}>
+      <div className="responsive-grid responsive-grid-two" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 12px' }}>
         {checks.map((c) => (
           <div key={c.label} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: c.ok ? '#86efac' : 'rgba(255,255,255,0.35)' }}>
             <span>{c.ok ? '✓' : '○'}</span>{c.label}
@@ -337,10 +337,10 @@ function Profile() {
       {/* avatar upload/crop UI removed */}
 
       {/* ── page ── */}
-      <div style={{ padding: '32px 24px', maxWidth: 960, margin: '0 auto' }}>
+      <div className="profile-page responsive-page" style={{ padding: '32px 24px', maxWidth: 960, margin: '0 auto' }}>
 
         {/* header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
+        <div className="responsive-wrap-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
           <div>
             <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800, letterSpacing: '-.02em' }}>My Profile</h1>
             <p style={{ margin: '4px 0 0', fontSize: 14, color: 'rgba(255,255,255,0.45)' }}>Manage your account information and security</p>
@@ -350,10 +350,10 @@ function Profile() {
           </GhostBtn>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: 20, alignItems: 'start' }}>
+        <div className="responsive-grid profile-grid" style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: 20, alignItems: 'start' }}>
 
           {/* ── left: avatar card ── */}
-          <div style={{ borderRadius: 16, background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', overflow: 'hidden' }}>
+          <div className="responsive-card" style={{ borderRadius: 16, background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', overflow: 'hidden' }}>
             <div style={{ height: 72, background: 'linear-gradient(135deg,#312e81,#4c1d95,#1e1b4b)' }} />
             <div style={{ padding: '0 22px 24px', textAlign: 'center' }}>
 
@@ -405,7 +405,7 @@ function Profile() {
             <SectionCard title="Account Details" icon="👤">
               {!editing ? (
                 <>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 20px' }}>
+                  <div className="responsive-grid responsive-grid-two" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 20px' }}>
                     {[
                       { label: 'First Name', value: profile.firstName || '—' },
                       { label: 'Last Name', value: profile.lastName || '—' },
@@ -423,14 +423,14 @@ function Profile() {
                 </>
               ) : (
                 <>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                  <div className="responsive-grid responsive-grid-two" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
                     <FieldInput label="First Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} icon="👤" placeholder="John" />
                     <FieldInput label="Last Name" value={lastName} onChange={(e) => setLastName(e.target.value)} icon="👤" placeholder="Doe" />
                   </div>
                   <FieldInput label="Email Address" value={profile.email} icon="✉️" disabled />
                   <p style={{ margin: '8px 0 0', fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>Email address cannot be changed from this page.</p>
                   <Divider />
-                  <div style={{ display: 'flex', gap: 10 }}>
+                  <div className="responsive-actions" style={{ display: 'flex', gap: 10 }}>
                     <PrimaryBtn onClick={saveProfile} loading={saving}>{saving ? 'Saving…' : 'Save changes'}</PrimaryBtn>
                     <GhostBtn onClick={() => { setEditing(false); setFirstName(profile.firstName || ''); setLastName(profile.lastName || ''); }}>Cancel</GhostBtn>
                   </div>

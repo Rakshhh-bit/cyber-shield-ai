@@ -59,7 +59,7 @@ function Dashboard() {
 
   return (
     <Layout>
-      <div style={{ animation: 'fadeUp 0.5s ease both' }}>
+      <div className="responsive-page" style={{ animation: 'fadeUp 0.5s ease both' }}>
 
         {/* HEADER */}
         <div style={{ marginBottom: '36px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
@@ -79,12 +79,13 @@ function Dashboard() {
         </div>
 
         {/* STAT CARDS */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px', marginBottom: '28px' }}>
+        <div className="responsive-grid responsive-grid-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px', marginBottom: '28px' }}>
           {stats.map((s, i) => {
             const Icon = s.icon;
             return (
               <div
                 key={i}
+                className="responsive-card"
                 style={{
                   padding: '24px',
                   borderRadius: '16px',
@@ -111,11 +112,13 @@ function Dashboard() {
         </div>
 
         {/* CHARTS ROW */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}
-          className="md:grid-cols-2 grid-cols-1">
+        <div
+          className="responsive-grid responsive-grid-two"
+          style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}
+        >
 
           {/* PIE */}
-          <div style={{ padding: '24px', borderRadius: '18px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+          <div className="responsive-card" style={{ padding: '24px', borderRadius: '18px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
             <div style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '6px', color: 'rgba(255,255,255,0.8)' }}>Threat Distribution</div>
             <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.25)', marginBottom: '20px', fontFamily: 'JetBrains Mono, monospace' }}>
               Risk level breakdown
@@ -141,7 +144,7 @@ function Dashboard() {
               </div>
             )}
             {/* LEGEND */}
-            <div style={{ display: 'flex', gap: '16px', marginTop: '12px', justifyContent: 'center' }}>
+            <div className="responsive-wrap-row" style={{ display: 'flex', gap: '16px', marginTop: '12px', justifyContent: 'center' }}>
               {[['High', '#ff3366'], ['Medium', '#ffb800'], ['Low', '#00ff88']].map(([label, color]) => (
                 <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: color }} />
@@ -152,7 +155,7 @@ function Dashboard() {
           </div>
 
           {/* BAR */}
-          <div style={{ padding: '24px', borderRadius: '18px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+          <div className="responsive-card" style={{ padding: '24px', borderRadius: '18px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
             <div style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '6px', color: 'rgba(255,255,255,0.8)' }}>Scan Types</div>
             <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.25)', marginBottom: '20px', fontFamily: 'JetBrains Mono, monospace' }}>
               By content category
@@ -178,8 +181,8 @@ function Dashboard() {
         </div>
 
         {/* RECENT SCANS TABLE */}
-        <div style={{ padding: '24px', borderRadius: '18px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+        <div className="responsive-card" style={{ padding: '24px', borderRadius: '18px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+          <div className="responsive-wrap-row" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
             <Activity size={16} color="rgba(0,245,255,0.7)" />
             <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'rgba(255,255,255,0.8)' }}>Recent Activity</div>
             <div style={{ marginLeft: 'auto', fontSize: '0.7rem', color: 'rgba(255,255,255,0.25)', fontFamily: 'JetBrains Mono, monospace' }}>
@@ -197,6 +200,7 @@ function Dashboard() {
               {scans.slice(0, 10).map((s, i) => (
                 <div
                   key={s._id}
+                  className="mobile-stack-row"
                   style={{
                     display: 'flex',
                     alignItems: 'center',

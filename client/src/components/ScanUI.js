@@ -41,7 +41,7 @@ function ScanUI({
     : CheckCircle;
 
   return (
-    <div style={{ animation: 'fadeUp 0.5s ease both' }}>
+    <div className="responsive-page" style={{ animation: 'fadeUp 0.5s ease both' }}>
 
       {/* HEADER */}
       <div style={{ marginBottom: '36px' }}>
@@ -56,13 +56,15 @@ function ScanUI({
         </p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '20px', alignItems: 'start' }}
-        className="md:grid-cols-2 grid-cols-1">
+      <div
+        className="responsive-grid responsive-grid-scan"
+        style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '20px', alignItems: 'start' }}
+      >
 
         {/* LEFT: INPUT */}
-        <div>
+        <div className="mobile-full-width">
           {/* INPUT CARD */}
-          <div style={{
+          <div className="responsive-card" style={{
             padding: '28px',
             borderRadius: '20px',
             background: 'rgba(255,255,255,0.02)',
@@ -128,7 +130,7 @@ function ScanUI({
               />
             )}
 
-            <div style={{ marginTop: '16px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <div className="responsive-actions" style={{ marginTop: '16px', display: 'flex', gap: '10px', alignItems: 'center' }}>
               <button
                 onClick={onClick}
                 style={{
@@ -181,7 +183,7 @@ function ScanUI({
 
           {/* RESULT */}
           {risk && (
-            <div style={{
+            <div className="responsive-card" style={{
               padding: '24px',
               borderRadius: '18px',
               background: riskBg,
@@ -238,10 +240,10 @@ function ScanUI({
         </div>
 
         {/* RIGHT: INFO PANEL */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        <div className="mobile-full-width" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
 
           {/* HOW IT SCANS */}
-          <div style={{
+          <div className="responsive-card" style={{
             padding: '22px',
             borderRadius: '16px',
             background: 'rgba(0,245,255,0.04)',
@@ -272,7 +274,7 @@ function ScanUI({
           </div>
 
           {/* RISK GUIDE */}
-          <div style={{
+          <div className="responsive-card" style={{
             padding: '22px',
             borderRadius: '16px',
             background: 'rgba(255,255,255,0.02)',

@@ -125,11 +125,11 @@ function Navbar() {
   }, []);
 
   return (
-    <div style={{ padding: '20px 24px 0', position: 'relative', zIndex: 10 }}>
+    <div className="navbar-shell" style={{ padding: '20px 24px 0', position: 'relative', zIndex: 10 }}>
       {/* Toast container */}
-      <div style={{ position: 'fixed', right: 18, top: 18, zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <div className="toast-stack" style={{ position: 'fixed', right: 18, top: 18, zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 10 }}>
         {alerts.map((a, idx) => (
-          <div key={idx} style={{ minWidth: 260, maxWidth: 420, background: 'linear-gradient(180deg, rgba(20,20,22,0.98), rgba(10,10,12,0.98))', border: '1px solid rgba(255,255,255,0.06)', padding: 12, borderRadius: 10, color: 'white', boxShadow: '0 8px 30px rgba(0,0,0,0.5)', fontSize: 13 }}>
+          <div key={idx} className="toast-card" style={{ minWidth: 260, maxWidth: 420, background: 'linear-gradient(180deg, rgba(20,20,22,0.98), rgba(10,10,12,0.98))', border: '1px solid rgba(255,255,255,0.06)', padding: 12, borderRadius: 10, color: 'white', boxShadow: '0 8px 30px rgba(0,0,0,0.5)', fontSize: 13 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
               <div style={{ fontWeight: 800 }}>{a.type?.toUpperCase() || 'SCAN'}</div>
               <div style={{ color: a.risk === 'HIGH' ? '#ff6b6b' : a.risk === 'MEDIUM' ? '#f59e0b' : '#34d399', fontWeight: 800 }}>{a.risk}</div>
@@ -138,7 +138,7 @@ function Navbar() {
           </div>
         ))}
       </div>
-      <nav style={{
+      <nav className="navbar-card" style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -153,7 +153,7 @@ function Navbar() {
       }}>
 
         {/* LOGO */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div className="navbar-brand" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{
             width: '36px', height: '36px',
             borderRadius: '10px',
@@ -176,7 +176,7 @@ function Navbar() {
        
 
         {/* RIGHT: BUTTONS */}
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <div className="navbar-actions" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           <button
             onClick={() => navigate("/dashboard")}
             style={{
