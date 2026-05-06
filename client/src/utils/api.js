@@ -1,10 +1,9 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://YOUR-RENDER-BACKEND.onrender.com/api",
+  baseURL: "https://cybershield-api.onrender.com/api",
 });
 
-// ✅ AUTO TOKEN ATTACH
 api.interceptors.request.use((req) => {
   const token = localStorage.getItem("token");
 
