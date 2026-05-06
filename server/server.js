@@ -13,19 +13,50 @@ const extensionRoutes = require("./routes/extensionRoutes");
 
 const app = express();
 
+const parseOrigins = (...values) =>
+  values
+    .filter(Boolean)
+    .flatMap((value) => value.split(","))
+    .map((value) => value.trim().replace(/\/+$/, ""))
+    .filter(Boolean);
+
+const allowedOrigins = new Set([
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+  "https://cybershieldai-secure.netlify.app",
+  ...parseOrigins(
+    process.env.CLIENT_URL,
+    process.env.CLIENT_URLS,
+    process.env.CORS_ORIGIN,
+    process.env.CORS_ORIGINS,
+    process.env.ALLOWED_ORIGINS
+  ),
+]);
+
+const corsOrigin = (origin, callback) => {
+  if (!origin || allowedOrigins.has(origin.replace(/\/+$/, ""))) {
+    return callback(null, true);
+  }
+
+  return callback(new Error(`Origin ${origin} is not allowed by CORS`));
+};
+
+const corsOptions = {
+  origin: corsOrigin,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+  optionsSuccessStatus: 204,
+};
+
 // ✅ CREATE HTTP SERVER
 const server = http.createServer(app);
 
 // ✅ SOCKET.IO INIT
 const io = new Server(server, {
-  cors: {
-    origin: [
-      "http://localhost:3000",
-      "https://cybershieldai-secure.netlify.app",
-    ],
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
-  },
+  cors: corsOptions,
 });
 
 // ✅ SAVE SOCKET INSTANCE
@@ -47,13 +78,7 @@ io.on("connection", (socket) => {
 
 // ✅ CORS MIDDLEWARE
 app.use(
-  cors({
-    origin: [
-      "http://localhost:3000",
-      "https://cybershieldai-secure.netlify.app",
-    ],
-    credentials: true,
-  })
+  cors(corsOptions)
 );
 
 // ✅ BODY PARSER

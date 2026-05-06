@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
-import { io } from "socket.io-client";
 import { useNavigate } from "react-router-dom";
 import { Shield, LayoutDashboard, LogOut } from "lucide-react";
 import api from "../utils/api";
+import socket, { connectSocket, disconnectSocket } from "../utils/socket";
 
 function Navbar() {
   const navigate = useNavigate();
 
   const logout = () => {
+    disconnectSocket();
     localStorage.removeItem("token");
     window.location.href = "/";
   };
@@ -18,7 +19,6 @@ function Navbar() {
   const [isEditing, setIsEditing] = useState(false);
   const [nameInput, setNameInput] = useState('');
   const menuRef = useRef(null);
-  const socketRef = useRef(null);
   const fetchedRef = useRef(false);
 
   // removed JWT parsing; will fetch profile from API
@@ -35,31 +35,25 @@ function Navbar() {
 
   useEffect(() => {
     // Setup Socket.io client for real-time scan alerts
-    if (!socketRef.current) {
-      const url = process.env.REACT_APP_SOCKET_URL || 'http://localhost:5001';
-      const socket = io(url, { autoConnect: false });
-      socketRef.current = socket;
+    const handleScanAlert = (data) => {
+      setAlerts(prev => [data, ...prev].slice(0, 6));
+      playBeep();
+    };
 
-      socket.on('connect', () => {
-        // connected
-      });
+    socket.on('scanAlert', handleScanAlert);
 
-      socket.on('scanAlert', (data) => {
-        setAlerts(prev => [data, ...prev].slice(0, 6));
-        playBeep();
-      });
-      // load persisted alerts
-      try {
-        const s = localStorage.getItem('alerts');
-        if (s) setAlerts(JSON.parse(s));
-      } catch (e) {}
+    if (localStorage.getItem('token')) {
+      connectSocket();
     }
 
+    // load persisted alerts
+    try {
+      const s = localStorage.getItem('alerts');
+      if (s) setAlerts(JSON.parse(s));
+    } catch (e) {}
+
     return () => {
-      if (socketRef.current) {
-        try { socketRef.current.disconnect(); } catch (e) {}
-        socketRef.current = null;
-      }
+      socket.off('scanAlert', handleScanAlert);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -96,10 +90,7 @@ function Navbar() {
 
     // If token exists, attach it to socket auth for server-side validation
     try {
-      if (socketRef.current && socketRef.current.auth) {
-        socketRef.current.auth = { token };
-        socketRef.current.connect();
-      }
+      connectSocket(token);
     } catch (e) {}
 
     // Use cached profile when available to avoid repeated network calls

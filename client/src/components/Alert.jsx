@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import socket from "../utils/socket";
+import socket, { connectSocket } from "../utils/socket";
 
 function Alert() {
   const [alert, setAlert] = useState(null);
@@ -11,6 +11,10 @@ function Alert() {
 
       setTimeout(() => setAlert(null), 4000);
     });
+
+    if (localStorage.getItem("token")) {
+      connectSocket();
+    }
 
     return () => socket.off("scanAlert");
   }, []);
