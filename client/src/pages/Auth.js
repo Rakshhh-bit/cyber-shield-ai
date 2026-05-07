@@ -9,6 +9,7 @@ import {
   User,
   ArrowRight,
   Zap,
+  Phone,
 } from "lucide-react";
 
 const SECURITY_TIPS = [
@@ -27,6 +28,8 @@ function Auth() {
   const [lastName, setLastName] = useState("");
 
   const [email, setEmail] = useState("");
+  const [mobile, setMobile] = useState("");
+
   const [password, setPassword] = useState("");
 
   const [otp, setOtp] = useState("");
@@ -41,6 +44,14 @@ function Auth() {
 
   const [error, setError] = useState("");
 
+  // ================= PASSWORD VALIDATION =================
+  const validatePassword = (pass) => {
+    const regex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+    return regex.test(pass);
+  };
+
   // ================= LOGIN / REGISTER =================
   const handleSubmit = async () => {
     try {
@@ -50,7 +61,7 @@ function Auth() {
       // LOGIN
       if (mode === "login") {
         const res = await api.post("/auth/login", {
-          email,
+          identifier: email,
           password,
         });
 
@@ -61,10 +72,20 @@ function Auth() {
 
       // REGISTER
       if (mode === "register") {
+
+        if (!validatePassword(password)) {
+          setError(
+            "Password must contain 8+ characters, 1 uppercase letter, 1 number, and 1 special symbol."
+          );
+          setLoading(false);
+          return;
+        }
+
         await api.post("/auth/register", {
           firstName,
           lastName,
           email,
+          mobile,
           password,
         });
 
@@ -370,7 +391,7 @@ function Auth() {
             }}
           >
             {mode === "login" &&
-              "Enter your credentials to continue"}
+              "Login using email or mobile number"}
             {mode === "register" &&
               "Set up your CyberShield account"}
             {mode === "forgot" &&
@@ -423,17 +444,6 @@ function Auth() {
                 }}
               />
 
-              <p
-                style={{
-                  fontSize: "0.78rem",
-                  color: "rgba(255,255,255,0.3)",
-                  textAlign: "center",
-                  marginBottom: "20px",
-                }}
-              >
-                Check your email inbox for the verification code
-              </p>
-
               <AuthButton
                 onClick={verifyOtp}
                 loading={loading}
@@ -443,42 +453,57 @@ function Auth() {
           ) : (
             <>
               {mode === "register" && (
-                <div
-                  className="responsive-grid responsive-grid-two"
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr 1fr",
-                    gap: "12px",
-                    marginBottom: "16px",
-                  }}
-                >
-                  <InputField
-                    icon={User}
-                    placeholder="First name"
-                    onChange={setFirstName}
-                  />
+                <>
+                  <div
+                    className="responsive-grid responsive-grid-two"
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: "12px",
+                      marginBottom: "16px",
+                    }}
+                  >
+                    <InputField
+                      icon={User}
+                      placeholder="First name"
+                      onChange={setFirstName}
+                    />
 
-                  <InputField
-                    icon={User}
-                    placeholder="Last name"
-                    onChange={setLastName}
-                  />
-                </div>
+                    <InputField
+                      icon={User}
+                      placeholder="Last name"
+                      onChange={setLastName}
+                    />
+                  </div>
+
+                  <div style={{ marginBottom: "16px" }}>
+                    <InputField
+                      icon={Phone}
+                      placeholder="Mobile number"
+                      onChange={setMobile}
+                      type="tel"
+                    />
+                  </div>
+                </>
               )}
 
               <div style={{ marginBottom: "16px" }}>
                 <InputField
                   icon={Mail}
-                  placeholder="Email address"
+                  placeholder={
+                    mode === "login"
+                      ? "Email or mobile number"
+                      : "Email address"
+                  }
                   onChange={setEmail}
-                  type="email"
+                  type="text"
                 />
               </div>
 
               {mode !== "forgot" && (
                 <div
                   style={{
-                    marginBottom: "28px",
+                    marginBottom: "12px",
                     position: "relative",
                   }}
                 >
@@ -510,6 +535,31 @@ function Auth() {
                       </button>
                     }
                   />
+                </div>
+              )}
+
+              {mode === "register" && (
+                <div
+                  style={{
+                    marginBottom: "22px",
+                    padding: "12px",
+                    borderRadius: "10px",
+                    background: "rgba(0,245,255,0.04)",
+                    border: "1px solid rgba(0,245,255,0.12)",
+                    color: "rgba(255,255,255,0.6)",
+                    fontSize: "0.76rem",
+                    lineHeight: "1.6",
+                  }}
+                >
+                  Password must contain:
+                  <br />
+                  • At least 8 characters
+                  <br />
+                  • One uppercase letter
+                  <br />
+                  • One number
+                  <br />
+                  • One special symbol
                 </div>
               )}
 
@@ -673,18 +723,6 @@ function InputField({
           fontFamily: "Space Grotesk, sans-serif",
           boxSizing: "border-box",
         }}
-        onFocus={(e) => {
-          e.target.style.borderColor =
-            "rgba(0,245,255,0.35)";
-          e.target.style.background =
-            "rgba(0,245,255,0.03)";
-        }}
-        onBlur={(e) => {
-          e.target.style.borderColor =
-            "rgba(255,255,255,0.08)";
-          e.target.style.background =
-            "rgba(0,0,0,0.25)";
-        }}
       />
 
       {rightEl && (
@@ -727,20 +765,6 @@ function AuthButton({ onClick, loading, label }) {
         boxShadow: "0 0 24px rgba(0,128,255,0.2)",
         transition: "all 0.2s ease",
         fontFamily: "Space Grotesk, sans-serif",
-      }}
-      onMouseEnter={(e) => {
-        if (!loading) {
-          e.currentTarget.style.boxShadow =
-            "0 0 36px rgba(0,128,255,0.35)";
-          e.currentTarget.style.transform =
-            "translateY(-1px)";
-        }
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.boxShadow =
-          "0 0 24px rgba(0,128,255,0.2)";
-        e.currentTarget.style.transform =
-          "translateY(0)";
       }}
     >
       {loading ? (
