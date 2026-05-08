@@ -267,27 +267,45 @@ const verifyOTP = async (req, res) => {
 const MAX_ATTEMPTS = 5;
 const LOCK_TIME = 15 * 60 * 1000;
 
+// ✅ SUPPORT OLD + NEW FRONTEND LOGIN
+const normalizeLoginIdentifier = (body) => {
+
+  if (body.identifier) {
+    return body.identifier;
+  }
+
+  if (body.email) {
+    return body.email;
+  }
+
+  if (body.mobile) {
+    return body.mobile;
+  }
+
+  return "";
+};
+
 const login = async (req, res) => {
   try {
 
-    const {
-      identifier,
-      password,
-    } = req.body;
+    // ✅ GET IDENTIFIER + PASSWORD
+    const identifier =
+      normalizeLoginIdentifier(req.body);
 
+    const password = req.body.password;
+
+    // ✅ VALIDATION
     if (!identifier || !password) {
       return res.status(400).json({
-        error:
-          "Email/mobile and password are required",
+        error: "Email/mobile and password are required",
       });
     }
 
-    // EMAIL OR MOBILE LOGIN
+    // ✅ FIND USER USING EMAIL OR MOBILE
     const user = await User.findOne({
       $or: [
         {
-          email:
-            identifier.toLowerCase(),
+          email: identifier.toLowerCase(),
         },
         {
           mobile: identifier,
@@ -295,51 +313,46 @@ const login = async (req, res) => {
       ],
     });
 
+    // ✅ INVALID USER
     if (!user) {
       return res.status(400).json({
-        error:
-          "Invalid credentials",
+        error: "Invalid credentials",
       });
     }
 
-    // LOCK CHECK
+    // ✅ ACCOUNT LOCK CHECK
     if (
       user.lockUntil &&
       user.lockUntil > Date.now()
     ) {
 
-      const minutesLeft =
-        Math.ceil(
-          (user.lockUntil -
-            Date.now()) /
-            60000
-        );
+      const minutesLeft = Math.ceil(
+        (user.lockUntil - Date.now()) / 60000
+      );
 
       return res.status(403).json({
         error: `Account locked. Try again in ${minutesLeft} minute(s).`,
       });
     }
 
-    // PASSWORD CHECK
-    const isMatch =
-      await bcrypt.compare(
-        password,
-        user.password
-      );
+    // ✅ PASSWORD CHECK
+    const isMatch = await bcrypt.compare(
+      password,
+      user.password
+    );
 
+    // ❌ WRONG PASSWORD
     if (!isMatch) {
 
       user.loginAttempts += 1;
 
       if (
-        user.loginAttempts >=
-        MAX_ATTEMPTS
+        user.loginAttempts >= MAX_ATTEMPTS
       ) {
 
-        user.lockUntil =
-          new Date(
-            Date.now() + LOCK_TIME
-          );
+        user.lockUntil = new Date(
+          Date.now() + LOCK_TIME
+        );
 
         user.loginAttempts = 0;
 
@@ -354,21 +367,20 @@ const login = async (req, res) => {
       await user.save();
 
       const remaining =
-        MAX_ATTEMPTS -
-        user.loginAttempts;
+        MAX_ATTEMPTS - user.loginAttempts;
 
       return res.status(400).json({
         error: `Invalid credentials. ${remaining} attempt(s) left.`,
       });
     }
 
-    // RESET COUNTERS
+    // ✅ RESET LOGIN ATTEMPTS
     user.loginAttempts = 0;
     user.lockUntil = null;
 
     await user.save();
 
-    // JWT TOKEN
+    // ✅ GENERATE JWT
     const token = jwt.sign(
       {
         id: user._id,
@@ -380,21 +392,27 @@ const login = async (req, res) => {
       }
     );
 
+    // ✅ SUCCESS RESPONSE
     res.json({
       token,
       role: user.role,
+      user: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        mobile: user.mobile,
+      },
     });
 
   } catch (err) {
 
     console.error(
       "Login error:",
-      err.message
+      err
     );
 
     res.status(500).json({
-      error:
-        "Login failed",
+      error: "Login failed",
     });
   }
 };

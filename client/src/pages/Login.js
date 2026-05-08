@@ -4,16 +4,18 @@ import { setToken } from "./Auth";
 import { useNavigate, Link } from "react-router-dom";
 
 function Login() {
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
+
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
       const res = await API.post("/auth/login", {
-        email,
+        identifier,
         password,
       });
+
 
       setToken(res.data.token);
 
@@ -34,9 +36,10 @@ function Login() {
 
         <input
           className="w-full p-2 mb-3 bg-white/10 rounded"
-          placeholder="Email"
-          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email or Mobile"
+          onChange={(e) => setIdentifier(e.target.value)}
         />
+
 
         <input
           type="password"

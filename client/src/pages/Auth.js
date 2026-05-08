@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import api from "../utils/api";
+
 import {
   Shield,
   Eye,
@@ -21,136 +22,168 @@ const SECURITY_TIPS = [
 ];
 
 function Auth() {
+
   const [mode, setMode] = useState("login");
   const [step, setStep] = useState("form");
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-
+  const [identifier, setIdentifier] = useState("");
   const [email, setEmail] = useState("");
   const [mobile, setMobile] = useState("");
-
   const [password, setPassword] = useState("");
-
   const [otp, setOtp] = useState("");
-
   const [loading, setLoading] = useState(false);
-
   const [showPass, setShowPass] = useState(false);
+  const [error, setError] = useState("");
 
   const [tipIndex] = useState(
     Math.floor(Math.random() * SECURITY_TIPS.length)
   );
 
-  const [error, setError] = useState("");
-
-  // ================= PASSWORD VALIDATION =================
-  const validatePassword = (pass) => {
-    const regex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-
-    return regex.test(pass);
+  // ─── PARSE ERROR FROM BACKEND ─────────────────────────────────
+  // FIX: backend returns { error: "..." } as JSON object
+  // old code was doing JSON.stringify on it → showing {"error":"..."} on screen
+  const parseError = (err) => {
+    if (!err?.response) return "Something went wrong. Please try again.";
+    const data = err.response.data;
+    if (!data) return "Something went wrong.";
+    if (typeof data === "string") return data;
+    if (typeof data === "object" && data.error) return data.error;
+    if (typeof data === "object" && data.message) return data.message;
+    return JSON.stringify(data);
   };
 
-  // ================= LOGIN / REGISTER =================
+  // ─── PASSWORD VALIDATION ──────────────────────────────────────
+  const validatePassword = (pass) =>
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/.test(pass);
+
+  // ─── LOGIN / REGISTER ─────────────────────────────────────────
   const handleSubmit = async () => {
     try {
       setLoading(true);
       setError("");
 
-      // LOGIN
+      // ── LOGIN ──
       if (mode === "login") {
+        const trimmedIdentifier = String(identifier || "").trim();
+        const trimmedPassword = String(password || "").trim();
+
+        if (!trimmedIdentifier) {
+          setError("Please enter your email or mobile number.");
+          return;
+        }
+        if (!trimmedPassword) {
+          setError("Please enter your password.");
+          return;
+        }
+
         const res = await api.post("/auth/login", {
-          identifier: email,
-          password,
+          identifier: trimmedIdentifier,
+          password: trimmedPassword,
         });
 
-        localStorage.setItem("token", res.data.token);
+        if (!res.data?.token) {
+          setError("Login failed — no token received.");
+          return;
+        }
 
+        localStorage.setItem("token", res.data.token);
         window.location.replace("/home");
+        return;
       }
 
-      // REGISTER
+      // ── REGISTER ──
       if (mode === "register") {
+        const trimmedFirstName  = String(firstName  || "").trim();
+        const trimmedLastName   = String(lastName   || "").trim();
+        const trimmedEmail      = String(email      || "").trim();
+        const trimmedMobile     = String(mobile     || "").trim();
+        const trimmedPassword   = String(password   || "").trim();
 
-        if (!validatePassword(password)) {
-          setError(
-            "Password must contain 8+ characters, 1 uppercase letter, 1 number, and 1 special symbol."
-          );
-          setLoading(false);
+        if (!trimmedFirstName || !trimmedLastName || !trimmedEmail || !trimmedMobile || !trimmedPassword) {
+          setError("All fields are required.");
+          return;
+        }
+
+        if (!validatePassword(trimmedPassword)) {
+          setError("Password must contain uppercase, lowercase, number and special symbol.");
           return;
         }
 
         await api.post("/auth/register", {
-          firstName,
-          lastName,
-          email,
-          mobile,
-          password,
+          firstName: trimmedFirstName,
+          lastName:  trimmedLastName,
+          email:     trimmedEmail,
+          mobile:    trimmedMobile,
+          password:  trimmedPassword,
         });
 
-        setError("");
         setStep("otp");
       }
 
     } catch (err) {
-      setError(
-        err?.response?.data?.message ||
-        "Invalid credentials"
-      );
+      setError(parseError(err));
     } finally {
       setLoading(false);
     }
   };
 
-  // ================= OTP VERIFY =================
+  // ─── VERIFY OTP ───────────────────────────────────────────────
+  // FIX: backend verifyOTP expects { email, otp } — NOT { identifier, otp }
   const verifyOtp = async () => {
     try {
       setLoading(true);
       setError("");
 
+      if (!otp.trim()) {
+        setError("Please enter the OTP.");
+        return;
+      }
+
       await api.post("/auth/verify", {
-        email,
-        otp,
+        email: String(email || "").trim(),
+        otp: otp.trim(),
       });
 
-      setError("");
       setMode("login");
       setStep("form");
+      setOtp("");
+      setError("");
 
     } catch (err) {
-      setError(
-        err?.response?.data?.message ||
-        "Invalid OTP"
-      );
+      setError(parseError(err));
     } finally {
       setLoading(false);
     }
   };
 
-  // ================= FORGOT PASSWORD =================
+  // ─── FORGOT PASSWORD ──────────────────────────────────────────
   const handleForgot = async () => {
     try {
       setLoading(true);
       setError("");
 
+      const trimmedIdentifier = String(identifier || "").trim();
+      if (!trimmedIdentifier) {
+        setError("Please enter your email address.");
+        return;
+      }
+
       await api.post("/auth/forgot", {
-        email,
+        email: trimmedIdentifier,
       });
 
-      setError("Reset link sent to your email");
-      setMode("login");
+      setError("Reset link sent successfully. Check your email.");
 
     } catch (err) {
-      setError(
-        err?.response?.data?.message ||
-        "Failed to send reset link"
-      );
+      setError(parseError(err));
     } finally {
       setLoading(false);
     }
   };
 
+  // ─── RENDER ───────────────────────────────────────────────────
   return (
     <div
       className="auth-page"
@@ -164,15 +197,14 @@ function Auth() {
       }}
     >
 
-      {/* AMBIENT */}
+      {/* AMBIENT GLOW */}
       <div
         style={{
           position: "fixed",
           width: "500px",
           height: "500px",
           borderRadius: "50%",
-          background:
-            "radial-gradient(circle, rgba(0,128,255,0.08) 0%, transparent 70%)",
+          background: "radial-gradient(circle, rgba(0,128,255,0.08) 0%, transparent 70%)",
           top: "50%",
           left: "30%",
           transform: "translate(-50%, -50%)",
@@ -181,7 +213,6 @@ function Auth() {
       />
 
       <div
-        className="responsive-grid auth-card"
         style={{
           width: "100%",
           maxWidth: "920px",
@@ -191,16 +222,13 @@ function Auth() {
           overflow: "hidden",
           border: "1px solid rgba(255,255,255,0.07)",
           boxShadow: "0 40px 120px rgba(0,0,0,0.6)",
-          animation: "fadeUp 0.5s ease both",
         }}
       >
 
-        {/* LEFT PANEL */}
+        {/* ── LEFT PANEL ── */}
         <div
-          className="auth-side-panel"
           style={{
-            background:
-              "linear-gradient(145deg, rgba(0,128,255,0.08) 0%, rgba(139,92,246,0.08) 100%)",
+            background: "linear-gradient(145deg, rgba(0,128,255,0.08) 0%, rgba(139,92,246,0.08) 100%)",
             padding: "48px 40px",
             display: "flex",
             flexDirection: "column",
@@ -210,8 +238,6 @@ function Auth() {
             overflow: "hidden",
           }}
         >
-
-          {/* BG PATTERN */}
           <div
             style={{
               position: "absolute",
@@ -219,104 +245,51 @@ function Auth() {
               backgroundImage:
                 "linear-gradient(rgba(0,245,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,245,255,0.03) 1px, transparent 1px)",
               backgroundSize: "40px 40px",
-              pointerEvents: "none",
             }}
           />
 
           <div style={{ position: "relative", zIndex: 1 }}>
 
             {/* LOGO */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "12px",
-                marginBottom: "48px",
-              }}
-            >
+            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "48px" }}>
               <div
                 style={{
                   width: "40px",
                   height: "40px",
                   borderRadius: "12px",
-                  background:
-                    "linear-gradient(135deg, #0080ff, #8b5cf6)",
+                  background: "linear-gradient(135deg, #0080ff, #8b5cf6)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  boxShadow: "0 0 24px rgba(0,128,255,0.4)",
                 }}
               >
                 <Shield size={20} color="white" />
               </div>
-
               <div>
-                <div
-                  style={{
-                    fontFamily: "Orbitron, monospace",
-                    fontSize: "0.85rem",
-                    fontWeight: 700,
-                    letterSpacing: "0.06em",
-                  }}
-                >
+                <div style={{ fontFamily: "Orbitron", fontSize: "0.9rem", fontWeight: 700, letterSpacing: "0.06em" }}>
                   CYBERSHIELD
                 </div>
-
-                <div
-                  style={{
-                    fontFamily: "JetBrains Mono, monospace",
-                    fontSize: "0.6rem",
-                    color: "rgba(0,245,255,0.6)",
-                    letterSpacing: "0.12em",
-                  }}
-                >
+                <div style={{ fontSize: "0.6rem", color: "#00f5ff", letterSpacing: "0.12em" }}>
                   AI SECURITY
                 </div>
               </div>
             </div>
 
-            <h2
-              style={{
-                fontSize: "1.8rem",
-                fontWeight: 700,
-                lineHeight: 1.2,
-                marginBottom: "16px",
-                fontFamily: "Space Grotesk, sans-serif",
-              }}
-            >
-              {mode === "login" ? (
-                <>
-                  Welcome
-                  <br />
-                  back.
-                </>
-              ) : (
-                <>
-                  Join the
-                  <br />
-                  shield.
-                </>
-              )}
+            <h2 style={{ fontSize: "2rem", fontWeight: 700, marginBottom: "16px" }}>
+              {mode === "login" ? "Welcome back." : "Join the shield."}
             </h2>
 
-            <p
-              style={{
-                color: "rgba(255,255,255,0.4)",
-                fontSize: "0.875rem",
-                lineHeight: 1.65,
-                maxWidth: "280px",
-              }}
-            >
+            <p style={{ color: "rgba(255,255,255,0.45)", lineHeight: "1.7" }}>
               {mode === "login"
-                ? "Your cybersecurity dashboard awaits. Scan, detect, and protect."
-                : "Start protecting yourself from phishing, malware, and digital scams today."}
+                ? "Your cybersecurity dashboard awaits."
+                : "Start protecting yourself from phishing and scams."}
             </p>
           </div>
 
           {/* SECURITY TIP */}
           <div
             style={{
-              padding: "18px 20px",
+              padding: "18px",
               borderRadius: "14px",
               background: "rgba(0,245,255,0.05)",
               border: "1px solid rgba(0,245,255,0.12)",
@@ -324,43 +297,20 @@ function Auth() {
               zIndex: 1,
             }}
           >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                marginBottom: "8px",
-              }}
-            >
-              <Zap size={13} color="#00f5ff" />
-
-              <span
-                style={{
-                  fontFamily: "JetBrains Mono, monospace",
-                  fontSize: "0.62rem",
-                  color: "rgba(0,245,255,0.7)",
-                  letterSpacing: "0.12em",
-                }}
-              >
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+              <Zap size={14} color="#00f5ff" />
+              <span style={{ fontSize: "0.65rem", letterSpacing: "0.12em", color: "#00f5ff" }}>
                 SECURITY TIP
               </span>
             </div>
-
-            <p
-              style={{
-                fontSize: "0.8rem",
-                color: "rgba(255,255,255,0.55)",
-                lineHeight: 1.55,
-              }}
-            >
+            <p style={{ color: "rgba(255,255,255,0.55)", fontSize: "0.8rem" }}>
               {SECURITY_TIPS[tipIndex]}
             </p>
           </div>
         </div>
 
-        {/* RIGHT PANEL */}
+        {/* ── RIGHT PANEL ── */}
         <div
-          className="auth-form-panel"
           style={{
             background: "rgba(255,255,255,0.02)",
             padding: "48px 40px",
@@ -370,92 +320,78 @@ function Auth() {
           }}
         >
 
-          <h3
-            style={{
-              fontFamily: "Space Grotesk, sans-serif",
-              fontSize: "1.3rem",
-              fontWeight: 600,
-              marginBottom: "8px",
-            }}
-          >
+          <h3 style={{ fontSize: "1.5rem", marginBottom: "8px" }}>
             {mode === "login" && "Sign In"}
             {mode === "register" && "Create Account"}
             {mode === "forgot" && "Reset Password"}
           </h3>
 
-          <p
-            style={{
-              fontSize: "0.82rem",
-              color: "rgba(255,255,255,0.3)",
-              marginBottom: "32px",
-            }}
-          >
-            {mode === "login" &&
-              "Login using email or mobile number"}
-            {mode === "register" &&
-              "Set up your CyberShield account"}
-            {mode === "forgot" &&
-              "We'll send you a reset link"}
+          <p style={{ color: "rgba(255,255,255,0.4)", marginBottom: "28px" }}>
+            {mode === "login"    && "Login using email or mobile number"}
+            {mode === "register" && "Set up your CyberShield account"}
+            {mode === "forgot"   && "We'll send you a reset link"}
           </p>
 
-          {/* ERROR UI */}
+          {/* ERROR BOX */}
           {error && (
             <div
               style={{
-                marginBottom: "16px",
-                padding: "12px 14px",
+                marginBottom: "18px",
+                padding: "14px",
                 borderRadius: "12px",
-                background: "rgba(255,0,0,0.08)",
-                border: "1px solid rgba(255,0,0,0.18)",
-                color: "#ff6b6b",
-                fontSize: "0.82rem",
-                fontFamily: "Space Grotesk, sans-serif",
+                background: error.toLowerCase().includes("success")
+                  ? "rgba(0,255,128,0.08)"
+                  : "rgba(255,0,0,0.08)",
+                border: error.toLowerCase().includes("success")
+                  ? "1px solid rgba(0,255,128,0.2)"
+                  : "1px solid rgba(255,0,0,0.2)",
+                color: error.toLowerCase().includes("success") ? "#00ff88" : "#ff6b6b",
+                fontSize: "0.85rem",
               }}
             >
               {error}
             </div>
           )}
 
+          {/* ── OTP SCREEN ── */}
           {step === "otp" ? (
             <>
-              <label
+              <p style={{ color: "rgba(255,255,255,0.5)", marginBottom: "18px", fontSize: "0.85rem" }}>
+                An OTP has been sent to <strong style={{ color: "white" }}>{email}</strong>
+              </p>
+
+              <InputField
+                icon={Lock}
+                placeholder="Enter 6-digit OTP"
+                value={otp}
+                onChange={setOtp}
+              />
+
+              <div style={{ height: "20px" }} />
+
+              <AuthButton onClick={verifyOtp} loading={loading} label="Verify OTP" />
+
+              <button
+                onClick={() => { setStep("form"); setMode("register"); setOtp(""); setError(""); }}
                 style={{
-                  fontSize: "0.75rem",
+                  marginTop: "14px",
+                  background: "none",
+                  border: "none",
                   color: "rgba(255,255,255,0.4)",
-                  letterSpacing: "0.08em",
-                  textTransform: "uppercase",
-                  marginBottom: "8px",
-                  display: "block",
-                  fontFamily: "JetBrains Mono, monospace",
+                  cursor: "pointer",
+                  textAlign: "center",
                 }}
               >
-                Verification Code
-              </label>
-
-              <input
-                className="input"
-                placeholder="Enter 6-digit OTP"
-                onChange={(e) => setOtp(e.target.value)}
-                style={{
-                  marginBottom: "20px",
-                  letterSpacing: "0.2em",
-                  textAlign: "center",
-                  fontSize: "1.1rem",
-                }}
-              />
-
-              <AuthButton
-                onClick={verifyOtp}
-                loading={loading}
-                label="Verify & Activate"
-              />
+                ← Back to registration
+              </button>
             </>
+
           ) : (
             <>
+              {/* REGISTER FIELDS */}
               {mode === "register" && (
                 <>
                   <div
-                    className="responsive-grid responsive-grid-two"
                     style={{
                       display: "grid",
                       gridTemplateColumns: "1fr 1fr",
@@ -463,213 +399,133 @@ function Auth() {
                       marginBottom: "16px",
                     }}
                   >
-                    <InputField
-                      icon={User}
-                      placeholder="First name"
-                      onChange={setFirstName}
-                    />
-
-                    <InputField
-                      icon={User}
-                      placeholder="Last name"
-                      onChange={setLastName}
-                    />
+                    <InputField icon={User} placeholder="First Name"  value={firstName} onChange={setFirstName} />
+                    <InputField icon={User} placeholder="Last Name"   value={lastName}  onChange={setLastName}  />
                   </div>
 
                   <div style={{ marginBottom: "16px" }}>
-                    <InputField
-                      icon={Phone}
-                      placeholder="Mobile number"
-                      onChange={setMobile}
-                      type="tel"
-                    />
+                    <InputField icon={Phone} placeholder="Mobile Number (10 digits)" value={mobile} onChange={setMobile} />
+                  </div>
+
+                  <div style={{ marginBottom: "16px" }}>
+                    <InputField icon={Mail} placeholder="Email Address" value={email} onChange={setEmail} />
                   </div>
                 </>
               )}
 
-              <div style={{ marginBottom: "16px" }}>
-                <InputField
-                  icon={Mail}
-                  placeholder={
-                    mode === "login"
-                      ? "Email or mobile number"
-                      : "Email address"
-                  }
-                  onChange={setEmail}
-                  type="text"
-                />
-              </div>
+              {/* LOGIN / FORGOT — identifier field */}
+              {mode !== "register" && (
+                <div style={{ marginBottom: "16px" }}>
+                  <InputField
+                    icon={Mail}
+                    placeholder={mode === "forgot" ? "Enter your email" : "Email or Mobile Number"}
+                    value={identifier}
+                    onChange={setIdentifier}
+                  />
+                </div>
+              )}
 
+              {/* PASSWORD */}
               {mode !== "forgot" && (
-                <div
-                  style={{
-                    marginBottom: "12px",
-                    position: "relative",
-                  }}
-                >
+                <div style={{ marginBottom: "14px" }}>
                   <InputField
                     icon={Lock}
                     placeholder="Password"
-                    onChange={setPassword}
+                    value={password}
                     type={showPass ? "text" : "password"}
+                    onChange={setPassword}
                     rightEl={
                       <button
-                        onClick={() =>
-                          setShowPass(!showPass)
-                        }
-                        style={{
-                          background: "none",
-                          border: "none",
-                          color: "rgba(255,255,255,0.3)",
-                          cursor: "pointer",
-                          padding: 0,
-                          display: "flex",
-                          alignItems: "center",
-                        }}
+                        onClick={() => setShowPass(!showPass)}
+                        style={{ background: "none", border: "none", color: "rgba(255,255,255,0.4)", cursor: "pointer" }}
                       >
-                        {showPass ? (
-                          <EyeOff size={16} />
-                        ) : (
-                          <Eye size={16} />
-                        )}
+                        {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
                       </button>
                     }
                   />
                 </div>
               )}
 
+              {/* PASSWORD REQUIREMENTS NOTE */}
               {mode === "register" && (
                 <div
                   style={{
                     marginBottom: "22px",
                     padding: "12px",
-                    borderRadius: "10px",
+                    borderRadius: "12px",
                     background: "rgba(0,245,255,0.04)",
                     border: "1px solid rgba(0,245,255,0.12)",
-                    color: "rgba(255,255,255,0.6)",
-                    fontSize: "0.76rem",
-                    lineHeight: "1.6",
+                    color: "rgba(255,255,255,0.65)",
+                    fontSize: "0.78rem",
+                    lineHeight: "1.7",
                   }}
                 >
                   Password must contain:
-                  <br />
-                  • At least 8 characters
-                  <br />
-                  • One uppercase letter
-                  <br />
-                  • One number
-                  <br />
-                  • One special symbol
+                  <br />• Minimum 8 characters
+                  <br />• One uppercase letter
+                  <br />• One number
+                  <br />• One special symbol (@$!%*?&)
                 </div>
               )}
 
+              {/* FORGOT LINK */}
               {mode === "login" && (
                 <button
-                  onClick={() => setMode("forgot")}
+                  onClick={() => { setMode("forgot"); setError(""); }}
                   style={{
                     background: "none",
                     border: "none",
-                    color: "rgba(255,255,255,0.3)",
-                    fontSize: "0.78rem",
-                    cursor: "pointer",
-                    padding: 0,
-                    marginBottom: "16px",
+                    color: "rgba(255,255,255,0.4)",
                     textAlign: "right",
-                    width: "100%",
-                    fontFamily:
-                      "Space Grotesk, sans-serif",
+                    marginBottom: "18px",
+                    cursor: "pointer",
                   }}
                 >
                   Forgot password?
                 </button>
               )}
 
+              {/* SUBMIT BUTTON */}
               <AuthButton
-                onClick={
-                  mode === "forgot"
-                    ? handleForgot
-                    : handleSubmit
-                }
+                onClick={mode === "forgot" ? handleForgot : handleSubmit}
                 loading={loading}
                 label={
-                  mode === "login"
-                    ? "Sign In"
-                    : mode === "register"
-                    ? "Send OTP"
-                    : "Send Reset Link"
+                  mode === "login"    ? "Sign In" :
+                  mode === "register" ? "Send OTP" :
+                                        "Send Reset Link"
                 }
               />
 
-              <div
-                style={{
-                  marginTop: "24px",
-                  textAlign: "center",
-                  fontSize: "0.82rem",
-                  color: "rgba(255,255,255,0.3)",
-                }}
-              >
+              {/* SWITCH MODE */}
+              <div style={{ marginTop: "22px", textAlign: "center", color: "rgba(255,255,255,0.4)" }}>
                 {mode === "login" && (
-                  <span>
+                  <>
                     Don't have an account?{" "}
                     <button
-                      onClick={() =>
-                        setMode("register")
-                      }
-                      style={{
-                        background: "none",
-                        border: "none",
-                        color:
-                          "rgba(0,245,255,0.7)",
-                        cursor: "pointer",
-                        fontWeight: 600,
-                        fontFamily:
-                          "Space Grotesk, sans-serif",
-                        fontSize: "0.82rem",
-                      }}
+                      onClick={() => { setMode("register"); setError(""); }}
+                      style={{ background: "none", border: "none", color: "#00f5ff", cursor: "pointer" }}
                     >
                       Sign up
                     </button>
-                  </span>
+                  </>
                 )}
 
                 {mode === "register" && (
-                  <span>
+                  <>
                     Already have an account?{" "}
                     <button
-                      onClick={() =>
-                        setMode("login")
-                      }
-                      style={{
-                        background: "none",
-                        border: "none",
-                        color:
-                          "rgba(0,245,255,0.7)",
-                        cursor: "pointer",
-                        fontWeight: 600,
-                        fontFamily:
-                          "Space Grotesk, sans-serif",
-                        fontSize: "0.82rem",
-                      }}
+                      onClick={() => { setMode("login"); setError(""); }}
+                      style={{ background: "none", border: "none", color: "#00f5ff", cursor: "pointer" }}
                     >
                       Sign in
                     </button>
-                  </span>
+                  </>
                 )}
 
                 {mode === "forgot" && (
                   <button
-                    onClick={() => setMode("login")}
-                    style={{
-                      background: "none",
-                      border: "none",
-                      color:
-                        "rgba(0,245,255,0.7)",
-                      cursor: "pointer",
-                      fontWeight: 600,
-                      fontFamily:
-                        "Space Grotesk, sans-serif",
-                      fontSize: "0.82rem",
-                    }}
+                    onClick={() => { setMode("login"); setError(""); }}
+                    style={{ background: "none", border: "none", color: "#00f5ff", cursor: "pointer" }}
                   >
                     ← Back to login
                   </button>
@@ -683,13 +539,8 @@ function Auth() {
   );
 }
 
-function InputField({
-  icon: Icon,
-  placeholder,
-  onChange,
-  type = "text",
-  rightEl,
-}) {
+// ─── INPUT FIELD ──────────────────────────────────────────────────
+function InputField({ icon: Icon, placeholder, value, onChange, type = "text", rightEl }) {
   return (
     <div style={{ position: "relative" }}>
       <div
@@ -698,29 +549,29 @@ function InputField({
           left: "14px",
           top: "50%",
           transform: "translateY(-50%)",
-          color: "rgba(255,255,255,0.2)",
+          color: "rgba(255,255,255,0.25)",
           pointerEvents: "none",
         }}
       >
-        <Icon size={15} />
+        <Icon size={16} />
       </div>
 
       <input
         type={type}
         placeholder={placeholder}
+        value={value}
         onChange={(e) => onChange(e.target.value)}
+        autoComplete="off"
         style={{
           width: "100%",
-          padding: "13px 16px 13px 42px",
+          padding: "14px 16px 14px 42px",
           paddingRight: rightEl ? "44px" : "16px",
-          borderRadius: "11px",
+          borderRadius: "12px",
           background: "rgba(0,0,0,0.25)",
           border: "1px solid rgba(255,255,255,0.08)",
           color: "white",
-          fontSize: "0.875rem",
           outline: "none",
-          transition: "all 0.2s ease",
-          fontFamily: "Space Grotesk, sans-serif",
+          fontSize: "0.9rem",
           boxSizing: "border-box",
         }}
       />
@@ -741,6 +592,7 @@ function InputField({
   );
 }
 
+// ─── AUTH BUTTON ──────────────────────────────────────────────────
 function AuthButton({ onClick, loading, label }) {
   return (
     <button
@@ -755,26 +607,15 @@ function AuthButton({ onClick, loading, label }) {
           : "linear-gradient(135deg, #0080ff, #8b5cf6)",
         border: "1px solid rgba(0,245,255,0.2)",
         color: "white",
-        fontSize: "0.9rem",
         fontWeight: 600,
         cursor: loading ? "not-allowed" : "pointer",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         gap: "8px",
-        boxShadow: "0 0 24px rgba(0,128,255,0.2)",
-        transition: "all 0.2s ease",
-        fontFamily: "Space Grotesk, sans-serif",
       }}
     >
-      {loading ? (
-        "Loading..."
-      ) : (
-        <>
-          {label}
-          <ArrowRight size={16} />
-        </>
-      )}
+      {loading ? "Loading..." : <>{label} <ArrowRight size={16} /></>}
     </button>
   );
 }
