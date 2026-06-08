@@ -83,6 +83,12 @@ function Auth() {
           password: trimmedPassword,
         });
 
+        // Handle error responses
+        if (res.status >= 400) {
+          setError(res.data?.error || "Login failed");
+          return;
+        }
+
         if (!res.data?.token) {
           setError("Login failed — no token received.");
           return;
@@ -111,13 +117,19 @@ function Auth() {
           return;
         }
 
-        await api.post("/auth/register", {
+        const registerRes = await api.post("/auth/register", {
           firstName: trimmedFirstName,
           lastName:  trimmedLastName,
           email:     trimmedEmail,
           mobile:    trimmedMobile,
           password:  trimmedPassword,
         });
+
+        // Handle error responses
+        if (registerRes.status >= 400) {
+          setError(registerRes.data?.error || "Registration failed");
+          return;
+        }
 
         setStep("otp");
       }

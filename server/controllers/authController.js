@@ -288,11 +288,17 @@ const normalizeLoginIdentifier = (body) => {
 const login = async (req, res) => {
   try {
 
+    // ✅ DEBUG LOG REQUEST
+    console.log("[LOGIN] Request body:", req.body);
+    console.log("[LOGIN] Request headers:", req.headers);
+
     // ✅ GET IDENTIFIER + PASSWORD
     const identifier =
       normalizeLoginIdentifier(req.body);
 
     const password = req.body.password;
+
+    console.log("[LOGIN] Identifier:", identifier, "Password:", password ? "***" : "missing");
 
     // ✅ VALIDATION
     if (!identifier || !password) {

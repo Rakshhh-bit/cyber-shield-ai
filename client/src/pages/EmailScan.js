@@ -52,5 +52,5 @@ function EmailScan() {
     </Layout>
   );
 }
-
+  
 export default EmailScan;

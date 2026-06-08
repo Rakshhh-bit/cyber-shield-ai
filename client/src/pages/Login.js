@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import API from "../api";
-import { setToken } from "./Auth";
+import API from "../utils/api";
+import { setToken } from "../auth";
 import { useNavigate, Link } from "react-router-dom";
 
 function Login() {
@@ -16,6 +16,16 @@ function Login() {
         password,
       });
 
+      // Handle error responses
+      if (res.status >= 400) {
+        alert(res.data?.error || "Login failed");
+        return;
+      }
+
+      if (!res.data?.token) {
+        alert("Login failed — no token received");
+        return;
+      }
 
       setToken(res.data.token);
 
@@ -23,7 +33,7 @@ function Login() {
       navigate("/dashboard");
 
     } catch (err) {
-      alert(err.response?.data?.error || "Login failed");
+      alert(err.response?.data?.error || err.message || "Login failed");
     }
   };
 
