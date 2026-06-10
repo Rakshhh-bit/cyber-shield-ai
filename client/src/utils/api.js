@@ -1,41 +1,49 @@
 import axios from "axios";
 import { API_BASE_URL } from "./config";
 
+console.log("API Base URL:", API_BASE_URL);
+
 const api = axios.create({
   baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-  timeout: 15000,
-  validateStatus: () => true, // Don't throw on any status code
+  timeout: 30000, // Increased timeout
 });
 
 api.interceptors.request.use((req) => {
-  const token = localStorage.getItem("token");
+  console.log("Request:", {
+    method: req.method,
+    url: req.url,
+    baseURL: req.baseURL,
+    data: req.data,
+    headers: req.headers,
+  });
 
+  const token = localStorage.getItem("token");
   if (token) {
     req.headers.Authorization = `Bearer ${token}`;
-  }
-
-  // Ensure proper JSON serialization
-  if (req.data) {
-    req.headers["Content-Type"] = "application/json";
   }
 
   return req;
 });
 
-api.interceptors.response.use((res) => {
-  if (res.status >= 400) {
-    console.error("API Error:", {
+api.interceptors.response.use(
+  (res) => {
+    console.log("Response:", {
       status: res.status,
-      data: res.data,
       url: res.config?.url,
-      method: res.config?.method,
-      requestData: res.config?.data,
+      data: res.data,
     });
+    return res;
+  },
+  (err) => {
+    console.error("Request failed:", {
+      message: err.message,
+      code: err.code,
+      status: err.response?.status,
+      data: err.response?.data,
+      url: err.config?.url,
+    });
+    return Promise.reject(err);
   }
-  return res;
-});
+);
 
 export default api;

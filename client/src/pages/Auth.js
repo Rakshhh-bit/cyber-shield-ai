@@ -42,12 +42,18 @@ function Auth() {
   );
 
   // ─── PARSE ERROR FROM BACKEND ─────────────────────────────────
-  // FIX: backend returns { error: "..." } as JSON object
-  // old code was doing JSON.stringify on it → showing {"error":"..."} on screen
   const parseError = (err) => {
-    if (!err?.response) return "Something went wrong. Please try again.";
+    console.error("Full error object:", err);
+    
+    if (!err) return "Something went wrong. Please try again.";
+    
+    // Network error or no response
+    if (!err?.response) {
+      return err?.message || "Network error - please check your connection and server is running.";
+    }
+    
     const data = err.response.data;
-    if (!data) return "Something went wrong.";
+    if (!data) return "Server error - no response data";
     if (typeof data === "string") return data;
     if (typeof data === "object" && data.error) return data.error;
     if (typeof data === "object" && data.message) return data.message;
@@ -117,21 +123,32 @@ function Auth() {
           return;
         }
 
-        const registerRes = await api.post("/auth/register", {
+        const payload = {
           firstName: trimmedFirstName,
           lastName:  trimmedLastName,
           email:     trimmedEmail,
           mobile:    trimmedMobile,
           password:  trimmedPassword,
-        });
+        };
 
-        // Handle error responses
-        if (registerRes.status >= 400) {
-          setError(registerRes.data?.error || "Registration failed");
-          return;
+        console.log("Registering with payload:", payload);
+
+        try {
+          const registerRes = await api.post("/auth/register", payload);
+
+          console.log("Register response:", registerRes);
+
+          // Handle error responses (4xx, 5xx)
+          if (registerRes.status >= 400) {
+            setError(registerRes.data?.error || `Registration failed (${registerRes.status})`);
+            return;
+          }
+
+          setStep("otp");
+        } catch (registrationError) {
+          console.error("Registration error details:", registrationError);
+          throw registrationError; // Re-throw to be caught by outer catch
         }
-
-        setStep("otp");
       }
 
     } catch (err) {
