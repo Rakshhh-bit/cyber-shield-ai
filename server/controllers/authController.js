@@ -142,9 +142,48 @@ const register = async (req, res) => {
       transporter.sendMail({
         from: `"CyberShield" <${process.env.EMAIL_USER}>`,
         to: email,
-        subject:
-          "CyberShield — Your OTP Code",
+        subject: "CyberShield — Your OTP Code",
         text: `Your OTP is: ${otp}\n\nThis code expires in 10 minutes.`,
+        html: `
+          <!doctype html>
+          <html>
+            <head>
+              <meta charset="utf-8" />
+              <meta name="viewport" content="width=device-width,initial-scale=1" />
+              <title>CyberShield — OTP</title>
+            </head>
+            <body style="margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;background:#f4f6f8;">
+              <table role="presentation" width="100%" style="max-width:700px;margin:24px auto;background:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,0.08);">
+                <tr>
+                  <td style="background:linear-gradient(90deg,#0ea5e9,#7c3aed);padding:28px;color:#fff;">
+                    <h1 style="margin:0;font-size:20px;letter-spacing:0.2px">CyberShield</h1>
+                    <p style="margin:6px 0 0;font-size:13px;opacity:0.95">Your secure sign-in code</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:36px 28px 20px;color:#0f172a;">
+                    <p style="margin:0 0 18px;font-size:15px;color:#0f172a;">Hello ${firstName || ''},</p>
+                    <p style="margin:0 0 24px;color:#334155">Use the one-time verification code below to complete your sign-in. This code is valid for 10 minutes.</p>
+
+                    <div style="display:flex;align-items:center;justify-content:center;margin:18px 0 24px;">
+                      <div style="background:#0b1220;padding:22px 28px;border-radius:10px;color:#fff;font-weight:700;font-size:28px;letter-spacing:4px;">${otp}</div>
+                    </div>
+
+                    <p style="margin:0 0 12px;color:#64748b;font-size:13px">If you did not request this code, you can safely ignore this email.</p>
+                    <hr style="border:none;border-top:1px solid #eef2f7;margin:20px 0" />
+
+                    <p style="margin:0;color:#94a3b8;font-size:12px">Need help? Reply to this email or visit our support page.</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="background:#0f172a;color:#9aa7bd;padding:14px 20px;font-size:12px;text-align:center;">
+                    © ${new Date().getFullYear()} CyberShield — Security made simple
+                  </td>
+                </tr>
+              </table>
+            </body>
+          </html>
+        `,
       }),
 
       new Promise((_, reject) =>
@@ -290,13 +329,26 @@ const login = async (req, res) => {
 
     // ✅ DEBUG LOG REQUEST
     console.log("[LOGIN] Request body:", req.body);
+    console.log("[LOGIN] Request rawBody:", req.rawBody ? (req.rawBody.length > 200 ? req.rawBody.slice(0,200)+"..." : req.rawBody) : "<none>");
     console.log("[LOGIN] Request headers:", req.headers);
 
     // ✅ GET IDENTIFIER + PASSWORD
-    const identifier =
-      normalizeLoginIdentifier(req.body);
+    // Try multiple locations for identifier/password. Some proxies or builds
+    // may send unexpected content-types which can leave req.body empty —
+    // attempt to parse rawBody as JSON as a fallback.
+    let parsedBody = req.body;
+    if ((!parsedBody || Object.keys(parsedBody).length === 0) && req.rawBody) {
+      try {
+        parsedBody = JSON.parse(req.rawBody);
+        console.log("[LOGIN] Parsed rawBody into JSON for fallback.");
+      } catch (e) {
+        // leave parsedBody as-is
+        console.log("[LOGIN] Failed to parse rawBody as JSON:", e.message);
+      }
+    }
 
-    const password = req.body.password;
+    const identifier = normalizeLoginIdentifier(parsedBody || {});
+    const password = parsedBody?.password || req.body?.password;
 
     console.log("[LOGIN] Identifier:", identifier, "Password:", password ? "***" : "missing");
 

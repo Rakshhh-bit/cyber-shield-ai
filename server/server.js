@@ -22,7 +22,9 @@ const parseOrigins = (...values) =>
 
 const allowedOrigins = new Set([
   "http://localhost:3000",
+  "http://localhost:3001",
   "http://127.0.0.1:3000",
+  "http://127.0.0.1:3001",
   "http://localhost:5173",
   "http://127.0.0.1:5173",
   "https://cybershieldai-secure.netlify.app",
@@ -36,7 +38,23 @@ const allowedOrigins = new Set([
 ]);
 
 const corsOrigin = (origin, callback) => {
-  if (!origin || allowedOrigins.has(origin.replace(/\/+$/, ""))) {
+  // Allow non-browser requests (curl, server-to-server)
+  if (!origin) return callback(null, true);
+
+  const cleaned = origin.replace(/\/+$/, "");
+
+  // Allow any localhost or 127.0.0.1 origin on any port
+  try {
+    const url = new URL(cleaned);
+    const host = url.hostname;
+    if (host === "localhost" || host === "127.0.0.1") {
+      return callback(null, true);
+    }
+  } catch (e) {
+    // fall through to allowedOrigins check
+  }
+
+  if (allowedOrigins.has(cleaned)) {
     return callback(null, true);
   }
 
@@ -81,8 +99,28 @@ app.use(
   cors(corsOptions)
 );
 
-// ✅ BODY PARSER
-app.use(express.json());
+// ✅ BODY PARSER - with increased limits
+// Capture raw body for debugging/fallback parsing when content-type is unexpected
+app.use(express.json({
+  limit: '50mb',
+  verify: (req, res, buf) => {
+    try {
+      req.rawBody = buf && buf.toString();
+    } catch (e) {
+      req.rawBody = undefined;
+    }
+  },
+}));
+
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
+// ✅ DEBUG MIDDLEWARE - Log all requests
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+  console.log("Body:", req.body);
+  console.log("Headers:", req.headers);
+  next();
+});
 
 // ✅ ROUTES
 app.use("/api/scan", scanRoutes);
@@ -102,8 +140,23 @@ mongoose
   .catch((err) => console.log("❌ Mongo Error:", err));
 
 // ✅ START SERVER
-const PORT = process.env.PORT || 5001;
+let PORT = process.env.PORT || 5001;
 
-server.listen(PORT, () => {
-  console.log(`✅ Server running on port ${PORT}`);
+const startServer = () => {
+  server.listen(PORT, () => {
+    console.log(`✅ Server running on port ${PORT}`);
+  });
+};
+
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`❌ Port ${PORT} is already in use. Trying port ${PORT + 1}...`);
+    PORT = PORT + 1;
+    startServer();
+  } else {
+    console.error('❌ Server error:', err);
+    process.exit(1);
+  }
 });
+
+startServer();
