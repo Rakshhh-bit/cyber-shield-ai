@@ -133,6 +133,22 @@ app.get("/", (req, res) => {
   res.send("🚀 CyberShield API Running...");
 });
 
+// ✅ HEALTH ROUTE FOR UPTIMEROBOT / CRON
+
+app.get("/health", (req, res) => {
+
+  res.status(200).json({
+
+    status: "ok",
+
+    message: "CyberShield API Running",
+
+    timestamp: new Date().toISOString(),
+    
+  });
+
+});
+
 // ✅ DATABASE CONNECT
 mongoose
   .connect(process.env.MONGO_URI)
